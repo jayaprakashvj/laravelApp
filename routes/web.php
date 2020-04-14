@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\AdminChk;
+use App\Http\Middleware\UserChk;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,5 +20,20 @@ Route::get('/', function () {
 });
 
 Auth::routes();
+Route::group(['middleware' => ['auth']], function () {
+        Route::post('/edit-customer', 'HomeController@editCustomer')->name('edit.customer');
+        Route::post('/update-customer', 'HomeController@updateCustomer')->name('update.customer');
+        Route::get('/update-password', 'HomeController@updatePasswordForm')->name('update.passwordForm');
+        Route::post('/update-password', 'HomeController@updatePassword')->name('update.password');
+});
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::group(['middleware' => ['userChk']], function () {
+    Route::get('/home', 'HomeController@index')->name('home');
+});
+Route::group(['middleware' => ['adminChk']], function () {
+    Route::get('/admin/home','Admin\AdminController@index')->name('admin.dashboard');
+    Route::get('/admin/customers','Admin\AdminController@customerList')->name('admin.customerList');
+    Route::post('/admin/customer-delete','Admin\AdminController@customerDelete')->name('admin.customerDelete');
+
+});
+
